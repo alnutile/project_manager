@@ -1,0 +1,76 @@
+<?php
+/**
+ * @file
+ * Storing data about the user
+ * The user has a week out look so we will store that.
+ * The user has vactation days so we will store those as well
+ * Thank example modules dbtng
+ */
+
+ /**
+ * Implements hook_schema().
+ *
+ * Defines the database tables used by this module.
+ * Remember that the easiest way to create the code for hook_schema is with
+ * the @link http://drupal.org/project/schema schema module @endlink
+ *
+ * @see hook_schema()
+ * @ingroup dbtng_example
+ */
+function project_user_schema() {
+  $schema['project_user_week'] = array(
+    'description' => 'Stores Week Hours of the User',
+    'fields' => array(
+      'pid'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique week ID.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "Creator user's {users}.uid",
+      ),
+      'day' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'day of the week start on monday = 1',
+      ),
+      'hours' => array(
+        'type' => 'numeric',
+        'not null' => TRUE,
+        'default' => 0,
+        'precision' => '5',
+        'scale' => '2',
+        'description' => 'Hours Available',
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  $schema['project_user_vacation_days'] = array(
+    'description' => 'Days to exclude the user',
+    'fields' => array(
+      'pid'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique week ID.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "Creator user's {users}.uid",
+      ),
+      'exclude' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "Timestamp of day to exclude the user",
+      ),
+    ),
+    'primary key' => array('pid'),
+  );  
+  return $schema;
+}

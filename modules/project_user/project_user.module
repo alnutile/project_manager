@@ -1,0 +1,118 @@
+<?php
+/**
+ * @file
+ * Attach data to the user
+ * 1. Hours a day the can work
+ * 2. Days a year they have a exclusion day
+ */
+
+use Drupal\contact\Plugin\Core\Entity\Category;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+function project_user_help($path, $arg) {
+  global $user;
+  
+  switch ($path) {
+    case 'user/%/weekly':
+      $output = '<h3>Set the users Weekly available hours here';
+      return $output;
+    case 'user/%/exclusions':
+      $output = 'Enter Days the user can not work. Once the are past days. 
+                 they will be read only for past reports.';
+      return $output;
+      }
+}
+
+/**
+ * hook_user
+ */
+function project_user_menu(){
+  $items['user/%user/weekly'] = array(
+    'title' => 'Weekly Schedule',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('project_user_weekly', 1),
+    'access arguments' => array('project manager user'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  
+  $items['user/%user/exclusions'] = array(
+    'title' => 'Excluded Days',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('project_user_excluded', 1),
+    'access arguments' => array('project manager user'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * User week form
+ */
+function project_user_weekly($form, &$form_state, $account = NULL){
+  global $user;
+  //Check db for values
+  $days = pm_helpers_days();
+  foreach($days as $key => $values) {
+  	$val = db_query("SELECT hours 
+  						FROM {project_user_week} 
+  						WHERE uid = :uid AND day = :day",
+						array(':uid' => $account->uid, ':day' => $key))->fetchField();
+    $form[$values['machine_name']] = array(
+      '#type' => 'textfield',
+      '#title' => t('@day', array('@day' => $values['nice_name'])),
+      '#size' => 2,
+      '#default_value' => ($val) ? $val : '',
+      '#description' => t('Enter hours available eg 5.5'),
+    );
+  }
+  
+  $form['account'] = array(
+      '#type' => 'value',
+      '#value' => $account->uid,
+  );
+  
+    $form['actions'] = array('#type' => 'actions');
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+    '#value' => 'Submit',
+  );
+  return $form;
+}
+
+function project_user_weekly_validate($form, &$form_state){
+
+}
+
+function project_user_weekly_submit($form, &$form_state){
+	$uid = $form_state['values']['account']; 
+	db_delete('project_user_week')
+		->condition('uid', $uid, '=')
+		->execute();
+    $days = pm_helpers_return_days_machine_names();
+    foreach($form_state['values'] as $key => $value) {
+      if(in_array($key, $days)){
+      	$fields['pid'] = '';
+		$fields['uid'] = $uid;
+		$fields['day'] = array_search($key, $days);
+		$fields['hours'] = (empty($value)) ? '0.00' : $value;
+		drupal_write_record('project_user_week', $fields);
+    	}
+	}
+}
+/**
+ * Figure out the days a user is excluded from the schedule
+ */
+function project_user_excluded(){
+  $form['monday'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Monday'),
+    '#description' => t('Enter hours available eg 5.5'),
+  );
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit',
+  );
+  return $form;
+}

@@ -1,0 +1,5 @@
+name = Project Manager Module
+description = Complete Set of Modules to Manage Projects
+core = 8.x
+package = Project Manager
+

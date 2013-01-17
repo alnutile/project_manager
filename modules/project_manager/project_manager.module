@@ -1,0 +1,62 @@
+<?php
+/**
+ *@file
+ *Setup some of the main helper features to the suite
+ */
+
+ /**
+ * Implements hook_permission().
+ */
+function project_manager_permission() {
+  return array(
+    'project manager admin' => array(
+      'title' => t('Admin of PM Module'),
+     ),
+    'project manager user' => array(
+      'title' => t('User of PM Module'),
+    ),
+  );
+}
+
+/** HELPERS **/
+
+function pm_helpers_days($key =  NULL) {
+return array(
+    '1' => array(
+      'nice_name' => 'Monday',
+      'machine_name' => 'monday',
+    ),
+    '2' => array(
+      'nice_name' => 'Tuesday',
+      'machine_name' => 'tuesday',
+    ),
+    '3' => array(
+      'nice_name' => 'Wednesday',
+      'machine_name' => 'wednesday',
+    ),
+    '4' => array(
+      'nice_name' => 'Thursday',
+      'machine_name' => 'thursday',
+    ),
+     '5' => array(
+      'nice_name' => 'Friday',
+      'machine_name' => 'friday',
+    ),
+    '6' => array(
+      'nice_name' => 'Saturday',
+      'machine_name' => 'saturday',
+    ),
+     '7' => array(
+      'nice_name' => 'Sunday',
+      'machine_name' => 'sunday',
+    ),
+  );
+}
+
+function pm_helpers_return_days_machine_names(){
+	$days = pm_helpers_days();
+	foreach($days as $key => $value){
+		$machine[$key] = $value['machine_name'];
+	}
+	return $machine;
+}
