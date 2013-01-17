@@ -55,8 +55,8 @@ function project_user_weekly($form, &$form_state, $account = NULL){
   $days = pm_helpers_days();
   foreach($days as $key => $values) {
   	$val = db_query("SELECT hours 
-  						FROM {project_user_week} 
-  						WHERE uid = :uid AND day = :day",
+  	         FROM {project_user_week} 
+  	         WHERE uid = :uid AND day = :day",
 						array(':uid' => $account->uid, ':day' => $key))->fetchField();
     $form[$values['machine_name']] = array(
       '#type' => 'textfield',
