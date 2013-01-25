@@ -1,0 +1,115 @@
+<?php
+/**
+ * @file
+ * Create a time tracker widget.
+ * Should end up with and API for an 
+ * External Widget as well.
+ * 
+ * Get Time for Task
+ * Set Time for Task
+ * Find Time Related to
+ * --Project
+ * ----Task
+ */
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+ /**
+ * Implements hook_permission().
+ */
+function project_timetracker_permission() {
+  return array(
+    'project manager time tracker user' => array(
+      'title' => t('User of PM Time Tracker Module'),
+    ),
+  );
+}
+
+function project_timetracker_menu(){
+  $items['system/timetracker/v1/addtime'] = array(
+    'access arguments' => array('project manager time tracker user'),
+    'page callback' => 'project_tt_add_time',
+    'file' => 'includes/project_tt_add_time.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['system/timetracker/v1/addtask'] = array(
+    'access arguments' => array('project manager add task'),
+    'page callback' => 'project_tt_add_task',
+    'file' => 'includes/project_tt_add_task.inc',
+    'type' => MENU_CALLBACK,
+  );  
+ 
+   $items['system/timetracker/v1/testarea'] = array(
+    'access arguments' => array('project manager time tracker user'),
+    'page callback' => 'project_tt_add_test',
+    'type' => MENU_CALLBACK,
+  );
+   
+  return $items;
+}
+
+
+function project_tt_add_test() {
+  $output = 'test';
+  $output = drupal_get_form('project_tt_form');
+  $output = render($output);
+  return $output;  
+}
+
+function project_tt_form() {
+  //Related Projects
+  //Related Tasks
+  $form['#prefix'] = "<div class='project-tt-form'>";
+  $form['#suffix'] = "</div>";
+  $path = drupal_get_path('module', 'project_timetracker');
+  drupal_add_js($path . '/js/project_tt.js');
+  $options = _project_tt_get_tasks();
+  $form['task'] = array(
+    '#type' => 'select',
+    '#title' => 'related task',
+    '#options' => $options,
+    '#name' => 'tt_tasks',  
+  );
+  //Time
+  $form['timer'] = array(
+    '#type' => 'textfield',
+    '#default_value' => 0,
+    '#name' => 'tt_time',
+    );  
+    
+  //Submit
+  $form['submit'] = array(
+    '#type' => 'button',
+    '#name' => 'tt_submit',
+    '#value' => 'Submit',
+    '#description' => t('this will enter a time entry into the system for this task'),
+  );
+  
+  //Pause/Go
+  $form['pause_go'] = array(
+    '#type' => 'button',
+    '#value'=> 'pause',
+    '#name' => 'tt_go',
+  );
+  
+  //Message area
+  $form['messages'] = array(
+    '#prefix' => '<div class="message-area">',
+    '#markup' => 'Start Working!',
+    '#suffix' => '</div>',
+  );
+
+  return $form;
+ }
+ 
+ function _project_tt_get_tasks(){
+    $result = db_query("SELECT * FROM node WHERE type LIKE :task", array(':task' => 'task'));
+    if($result) {
+      while($row = $result->fetchAssoc()) {
+        $nid = $row['nid'];
+        $options[$nid] = $row['title'];
+      }
+    }
+    if(count($options)) { return $options; } else { return array('0' => '-no tasks-'); };
+ }
+

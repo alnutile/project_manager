@@ -15,6 +15,9 @@ function project_manager_permission() {
     'project manager user' => array(
       'title' => t('User of PM Module'),
     ),
+    'project manager add task' => array(
+      'title' => t('Can Add Tasks to PM'),
+    ),
   );
 }
 

@@ -1,0 +1,94 @@
+<?php
+/**
+ * hook_install
+ */
+
+/**
+ * Implements hook_schema().
+ *
+ * Defines the database tables used by this module.
+ * Remember that the easiest way to create the code for hook_schema is with
+ * the @link http://drupal.org/project/schema schema module @endlink
+ *
+ * @see hook_schema()
+ * @ingroup dbtng_example
+ */
+function project_timetracker_schema() {
+  $schema['project_timer_entry'] = array(
+    'description' => 'Track time related to nodes',
+    'fields' => array(
+      'pid'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique person ID.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "Creator user's {users}.uid",
+      ),
+      'seconds' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'Seconds worked',
+      ),
+      'related_task' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'Related Task Node',
+      )
+    ),
+    'primary key' => array('pid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Add time and updated to
+ * the time tracker table
+ */
+function project_timetracker_update_8001() {
+  $field = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'Time the time was entered',
+  );
+  db_add_field('project_timer_entry', 'created', $field);
+  
+  $field = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'Time the time was updated',
+  );
+  db_add_field('project_timer_entry', 'updated', $field);
+}
+
+/**
+ * Made the seconds and related tasks fields
+ * toooooo small
+ */
+function project_timetracker_update_8002(){
+  $field = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  
+  db_change_field('project_timer_entry', 'seconds', 'seconds', $field);
+  
+    $field = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  
+  db_change_field('project_timer_entry', 'related_task', 'related_task', $field);
+}

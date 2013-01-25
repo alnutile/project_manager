@@ -1,0 +1,6 @@
+name = Project Manager Time Tracker Module
+description = Time Tracker Module
+core = 8.x
+package = Project Manager
+
+dependencies[] = project_manager
