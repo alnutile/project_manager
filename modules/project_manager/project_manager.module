@@ -63,3 +63,11 @@ function pm_helpers_return_days_machine_names(){
 	}
 	return $machine;
 }
+
+
+function pm_helpers_check_api($params) {
+  $encoded = $params['enc_request'];
+  
+  $app_id = $params['app_id'];
+
+}

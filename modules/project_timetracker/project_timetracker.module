@@ -13,6 +13,19 @@
  */
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+//Define our id-key pairs
+$applications = array(
+        'APP001' => '28e336ac6c9423d946ba02d19c6a2632', //randomly generated app key 
+);
+
+//include our models
+$path = drupal_get_path('module', 'project_timetracker');
+DEFINE('TTPATH', $path);
+DEFINE('APIKEY', '28e336ac6c9423d946ba02d19c6a2632');
+DEFINE('APIID', 'APP01');
+
+require_once($path . '/Models/projects_tt.model.inc');
+
  /**
  * Implements hook_permission().
  */
@@ -28,10 +41,15 @@ function project_timetracker_menu(){
   $items['system/timetracker/v1/addtime'] = array(
     'access arguments' => array('project manager time tracker user'),
     'page callback' => 'project_tt_add_time',
-    'file' => 'includes/project_tt_add_time.inc',
     'type' => MENU_CALLBACK,
   );
 
+   $items['system/timetracker/v1/getTimes'] = array(
+    'access arguments' => array('project manager time tracker user'),
+    'page callback' => 'project_tt_get_times',
+    'type' => MENU_CALLBACK,
+  );
+  
   $items['system/timetracker/v1/addtask'] = array(
     'access arguments' => array('project manager add task'),
     'page callback' => 'project_tt_add_task',
@@ -50,10 +68,29 @@ function project_timetracker_menu(){
 
 
 function project_tt_add_test() {
-  $output = 'test';
+  $output = 'test';   
   $output = drupal_get_form('project_tt_form');
   $output = render($output);
   return $output;  
+}
+
+
+function project_tt_get_times(){
+  $params = array('uid' => arg(4), 'task' => arg(5));
+  watchdog('Params', print_r($params, 1));
+  require_once(TTPATH . '/Controllers/timer.inc');
+  $controller = new Timer($params);
+  $result['data'] = $controller->readAction();
+  $result['success'] = true;   
+  return new JsonResponse($result);
+}
+
+function project_tt_add_task() {
+
+}
+
+function project_tt_add_time () {
+  
 }
 
 function project_tt_form() {
@@ -61,8 +98,7 @@ function project_tt_form() {
   //Related Tasks
   $form['#prefix'] = "<div class='project-tt-form'>";
   $form['#suffix'] = "</div>";
-  $path = drupal_get_path('module', 'project_timetracker');
-  drupal_add_js($path . '/js/project_tt.js');
+  drupal_add_js(TTPATH . '/js/project_tt.js');
   $options = _project_tt_get_tasks();
   $form['task'] = array(
     '#type' => 'select',
@@ -112,4 +148,3 @@ function project_tt_form() {
     }
     if(count($options)) { return $options; } else { return array('0' => '-no tasks-'); };
  }
-

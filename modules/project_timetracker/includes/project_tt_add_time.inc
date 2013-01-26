@@ -30,6 +30,9 @@ function project_tt_add_time() {
         'updated' => REQUEST_TIME,
       )
     )->execute(); 
+    
+    //Get the times for this task chosen
+    
     return new JsonResponse($test);
   } else {
     return new JsonResponse($test); 

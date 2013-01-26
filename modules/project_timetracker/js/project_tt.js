@@ -14,6 +14,8 @@
       //Submit Button
       function pushBackMessage( data ) {
         console.log(data);
+        //Reset the counter
+        $('input[name=tt_time]').val(0);
         $('input[name=tt_submit]').removeAttr('disabled').attr('value', 'Ready for more...');
       }
       jQuery('input[name=tt_submit]').click(
