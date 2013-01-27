@@ -12,6 +12,7 @@
  * ----Task
  */
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 //Define our id-key pairs
 $applications = array(
@@ -25,7 +26,7 @@ DEFINE('APIKEY', '28e336ac6c9423d946ba02d19c6a2632');
 DEFINE('APIID', 'APP01');
 
 require_once($path . '/Models/projects_tt.model.inc');
-
+require_once($path . '/includes/ApiCaller.php');
  /**
  * Implements hook_permission().
  */
@@ -39,19 +40,20 @@ function project_timetracker_permission() {
 
 function project_timetracker_menu(){
   $items['system/timetracker/v1/addtime'] = array(
-    'access arguments' => array('project manager time tracker user'),
+    'access callback' => 'pm_helpers_check_api',
     'page callback' => 'project_tt_add_time',
+    'page arguments' => array(4,5,6),
     'type' => MENU_CALLBACK,
   );
 
    $items['system/timetracker/v1/getTimes'] = array(
-    'access arguments' => array('project manager time tracker user'),
+    'access callback' => 'pm_helpers_check_api',
     'page callback' => 'project_tt_get_times',
     'type' => MENU_CALLBACK,
   );
   
   $items['system/timetracker/v1/addtask'] = array(
-    'access arguments' => array('project manager add task'),
+    'access callback' => 'pm_helpers_check_api',
     'page callback' => 'project_tt_add_task',
     'file' => 'includes/project_tt_add_task.inc',
     'type' => MENU_CALLBACK,
@@ -68,18 +70,26 @@ function project_timetracker_menu(){
 
 
 function project_tt_add_test() {
-  $output = 'test';   
-  $output = drupal_get_form('project_tt_form');
-  $output = render($output);
+  //Use the api caller to do a test call 
+  global $user;
+  $apicaller = new ApiCaller('APP001', '28e336ac6c9423d946ba02d19c6a2632', 'http://local.d8.com/system/timetracker/v1/getTimes');
+  $time_items = $apicaller->sendRequest(array(
+      'uid' => $user->uid,
+      'task' => 2,
+  ));
+  $output = print_r($time_items, 1);
+  
+  $form = drupal_get_form('project_tt_form');
+  $output .= render($form);
   return $output;  
 }
 
 
 function project_tt_get_times(){
-  $params = array('uid' => arg(4), 'task' => arg(5));
-  watchdog('Params', print_r($params, 1));
+  watchdog('line 89', print_r($_REQUEST, 1));
+  $params = array('uid' => $uid, 'task' => $task);
   require_once(TTPATH . '/Controllers/timer.inc');
-  $controller = new Timer($params);
+  $controller = new Timer($_REQUEST);
   $result['data'] = $controller->readAction();
   $result['success'] = true;   
   return new JsonResponse($result);

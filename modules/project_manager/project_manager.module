@@ -65,9 +65,41 @@ function pm_helpers_return_days_machine_names(){
 }
 
 
-function pm_helpers_check_api($params) {
-  $encoded = $params['enc_request'];
-  
-  $app_id = $params['app_id'];
+function pm_helpers_check_api() {
+  $app_id = $_REQUEST['app_id'];
+  $enc_request = $_REQUEST['enc_request'];
+  try {
 
+    $app_key_exists = pm_helpers_get_app_key_from_id($app_id);
+/*
+    if( !is_numeric($app_key_exists) ) {
+        throw new Exception('Application does not exist!');
+    }
+*/
+    //check if the request is valid by checking if it's an array and looking for the controller and action
+    $params = pm_helpers_decrypt($enc_request, $app_key_exists);
+    return $params;
+/*
+    if( $params == false ) {
+        throw new Exception('Request is not valid');
+    }
+*/
+    
+    
+  } catch( Exception $e ) {
+          //catch any exceptions and report the problem
+          $result = array();
+          $result['success'] = false;
+          $result['errormsg'] = $e->getMessage();
+  }
+ 
+}
+
+function pm_helpers_get_app_key_from_id($app_id) {
+  return db_query("SELECT app_key FROM project_manager_app_id WHERE 
+                    app_id = :id", array(':id' => $app_id))->fetchField();
+}
+
+function pm_helpers_decrypt($enc_request, $app_key) {
+  return json_decode(trim(mcrypt_decrypt( MCRYPT_RIJNDAEL_256, $app_key, base64_decode($enc_request), MCRYPT_MODE_ECB )));
 }

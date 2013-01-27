@@ -1,0 +1,45 @@
+<?php
+
+function project_manager_schema() {
+  $schema['project_manager_app_id'] = array(
+    'description' => 'App ID and Keys',
+    'fields' => array(
+      'pid'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key',
+      ),
+      'app_key' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => "App Key",
+      ),
+      'app_id' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => 'APP ID',
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+
+  return $schema;
+
+}
+
+/**
+ * setup table
+ */
+function project_manager_update_8100() {
+  drupal_install_schema('project_manager');
+  
+  db_insert('project_manager_app_id')->
+    fields(array(
+      'pid' => NULL,
+      'app_key' => '28e336ac6c9423d946ba02d19c6a2632',
+      'app_id'  => 'APP001',
+    ))->execute();
+
+}
