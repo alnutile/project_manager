@@ -21,13 +21,31 @@ class TimeHandlers
                 $query->orderBy('created');
                 $result = $query->execute();
                 foreach($result as $row) {
-                  $date = date('m-d-y', strtotime($row->created));
+                  $date = date('m-d-y', $row->created);
                   $time = $row->seconds;
-                  $all_times[$row->pid] = "{$date} {$time}"; 
+                  $all_times[$row->pid] = array('date' => $date, 'seconds' => $time, 'pid' => $row->pid); 
                 }
-                
                 return $all_times;
         }
+
+        public static function getAllTimeTasks($uid)
+        {
+                $all_times = array();
+                $query = db_select('node', 'n');
+                $query->fields('n');
+                $query->condition('uid', $uid, '=');
+                $query->condition('n.type', 'task', 'LIKE');
+                $query->orderBy('created');
+                $result = $query->execute();
+                foreach($result as $row) {
+                  $date = date('m-d-y', $row->created);
+                  $title = $row->title;
+                  $nid = $row->nid;
+                  $all_tasks[$row->nid] = array('date' => $date, 'title' => $title, 'nid' => $row->nid); 
+                }
+                return $all_tasks;
+        }
+        
         /**
          * To edit or delete
          */

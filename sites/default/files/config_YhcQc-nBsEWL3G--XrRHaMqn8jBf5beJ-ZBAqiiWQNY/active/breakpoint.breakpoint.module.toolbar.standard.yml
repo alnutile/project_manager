@@ -1,0 +1,11 @@
+id: module.toolbar.standard
+uuid: 58d3446b-a673-467c-b207-07c2f4a25c22
+name: standard
+label: standard
+mediaQuery: 'only screen and (min-width: 38.125em)'
+source: toolbar
+sourceType: module
+weight: '1'
+multipliers:
+  1x: 1x
+langcode: und

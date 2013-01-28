@@ -1,0 +1,14 @@
+cache:
+  page:
+    enabled: '1'
+    max_age: '60'
+css:
+  preprocess: '1'
+  gzip: '1'
+js:
+  preprocess: '1'
+  gzip: '1'
+response:
+  gzip: '1'
+stale_file_threshold: '2592000'
+theme_link: '1'

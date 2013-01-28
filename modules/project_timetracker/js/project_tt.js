@@ -18,6 +18,7 @@
         $('input[name=tt_time]').val(0);
         $('input[name=tt_submit]').removeAttr('disabled').attr('value', 'Ready for more...');
       }
+      
       jQuery('input[name=tt_submit]').click(
         function(event) {
           event.preventDefault();
@@ -34,6 +35,30 @@
           );
         }
       );
+    
+    /**
+     * Get times of task
+     */
+    jQuery('select[name=tt_tasks]').change(
+      function(){
+      var selectedTask = jQuery('option:selected', this).val();
+      //Now get the new items related to that selected task
+      $.ajax(
+        {
+          type: "POST",
+          url: 'http://local.d8.com/system/timetracker/v1/getTimes',
+          data: {},
+          success: returnTimes
+        }
+      );
+      
+      }
+    );
+    
+    function returnTimes(data) {
+      console.log(data);
+    }
+    
     }
   };
 

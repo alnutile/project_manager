@@ -19,6 +19,8 @@ $applications = array(
         'APP001' => '28e336ac6c9423d946ba02d19c6a2632', //randomly generated app key 
 );
 
+
+
 //include our models
 $path = drupal_get_path('module', 'project_timetracker');
 DEFINE('TTPATH', $path);
@@ -58,6 +60,12 @@ function project_timetracker_menu(){
     'file' => 'includes/project_tt_add_task.inc',
     'type' => MENU_CALLBACK,
   );  
+
+  $items['system/timetracker/v1/getTasks'] = array(
+    'access callback' => 'pm_helpers_check_api',
+    'page callback' => 'project_tt_get_tasks',
+    'type' => MENU_CALLBACK,
+  );  
  
    $items['system/timetracker/v1/testarea'] = array(
     'access arguments' => array('project manager time tracker user'),
@@ -77,23 +85,50 @@ function project_tt_add_test() {
       'uid' => $user->uid,
       'task' => 2,
   ));
-  $output = print_r($time_items, 1);
-  
+
   $form = drupal_get_form('project_tt_form');
   $output .= render($form);
+  
+  $output .= project_tt_edit_area($time_items);
   return $output;  
 }
 
 
+/**
+ * Get times for a user
+ */
 function project_tt_get_times(){
-  watchdog('line 89', print_r($_REQUEST, 1));
-  $params = array('uid' => $uid, 'task' => $task);
-  require_once(TTPATH . '/Controllers/timer.inc');
-  $controller = new Timer($_REQUEST);
-  $result['data'] = $controller->readAction();
+  $path = drupal_get_path('module', 'project_timetracker');
+  $app_id = $_REQUEST['app_id'];
+  $enc_request = $_REQUEST['enc_request'];
+  $app_key_exists = pm_helpers_get_app_key_from_id($app_id);
+  $params = pm_helpers_decrypt($enc_request, $app_key_exists);
+  require_once($path . '/Controllers/timer.inc');
+  $controller = new Timer($params);
+  $result['data'] = $controller->getTasks();
   $result['success'] = true;   
   return new JsonResponse($result);
 }
+
+
+
+/**
+ * Get Tasks for a user
+ */
+function project_tt_get_tasks(){
+  $path = drupal_get_path('module', 'project_timetracker');
+  $app_id = $_REQUEST['app_id'];
+  $enc_request = $_REQUEST['enc_request'];
+  $app_key_exists = pm_helpers_get_app_key_from_id($app_id);
+  $params = pm_helpers_decrypt($enc_request, $app_key_exists);
+  require_once($path . '/Controllers/timer.inc');
+  $controller = new Timer($params);
+  $result['data'] = $controller->getAllTasks();
+  $result['success'] = true;   
+  return new JsonResponse($result);
+}
+
+
 
 function project_tt_add_task() {
 
@@ -110,6 +145,7 @@ function project_tt_form() {
   $form['#suffix'] = "</div>";
   drupal_add_js(TTPATH . '/js/project_tt.js');
   $options = _project_tt_get_tasks();
+  
   $form['task'] = array(
     '#type' => 'select',
     '#title' => 'related task',
@@ -158,3 +194,26 @@ function project_tt_form() {
     }
     if(count($options)) { return $options; } else { return array('0' => '-no tasks-'); };
  }
+ 
+/**
+* Take the results of GetItems and 
+* make forms out of them for the user to edit
+*/
+function project_tt_edit_area($time_items) {
+ if(count($time_items)){
+    $items = '';
+    foreach($time_items as $key) {
+      $minutes = $key->seconds / 60;
+      $date = $key->date;
+      $pid = $key->pid;
+      $items  .= "<div class=\"input-append\">
+                      <input class=\"span1\" id=\"$key\" type='text' value=\"$minutes\">
+                      <span class=\"add-on\">$date</span>
+                      <button class=\"btn\" type=\"button\">u</button>
+                     </div>";
+    }
+    return $items;
+    }  else {
+    return '<div class="alert alert-info">No related items</div>';
+   }
+} 

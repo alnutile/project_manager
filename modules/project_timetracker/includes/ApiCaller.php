@@ -22,7 +22,7 @@ class ApiCaller
         {
                 //encrypt the request parameters
                 $enc_request = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $this->_app_key, json_encode($request_params), MCRYPT_MODE_ECB));
-                
+      
                 //create the params array, which will
                 //be the POST parameters
                 $params = array();
@@ -38,20 +38,22 @@ class ApiCaller
                 
                 //execute the request
                 $result = curl_exec($ch);
-                
+
                 //json_decode the result
                 $result = @json_decode($result);
-
+                
+/*
                 //check if we're able to json_decode the result correctly
                 if( $result == false || isset($result->success) == false ) {
-                        //throw new Exception('Request was not correct');
+                        throw new Exception('Request was not correct');
                 }
                 
                 //if there was an error in the request, throw an exception
                 if( $result->success == false ) {
-                        //throw new Exception($result->errormsg);
+                        throw new Exception($result->errormsg);
                 }
                 
+*/
                 //if everything went great, return the data
                 return $result->data;
         }

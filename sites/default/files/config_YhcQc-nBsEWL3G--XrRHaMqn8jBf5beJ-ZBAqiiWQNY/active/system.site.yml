@@ -1,0 +1,9 @@
+name: local.d8.com
+mail: projects@local.d8.com
+slogan: ''
+page:
+  403: ''
+  404: ''
+  front: node
+admin_compact_mode: '0'
+weight_select_max: '100'
