@@ -13,19 +13,23 @@ class TimeHandlers
         
         public static function getAllTimeItems($uid, $task)
         {
-                $all_times = array();
+               
                 $query = db_select('project_timer_entry', 'pe');
                 $query->fields('pe');
                 $query->condition('uid', $uid, '=');
                 $query->condition('related_task', $task, '=');
                 $query->orderBy('created');
                 $result = $query->execute();
+                if($result) {
                 foreach($result as $row) {
                   $date = date('m-d-y', $row->created);
                   $time = $row->seconds;
                   $all_times[$row->pid] = array('date' => $date, 'seconds' => $time, 'pid' => $row->pid); 
                 }
-                return $all_times;
+                  return $all_times;
+                } else {
+                  return $all_times = array('No times yet!');
+                }
         }
 
         public static function getAllTimeTasks($uid)

@@ -6,7 +6,7 @@ class Timer
         public function __construct($params)
         {
                 $this->_params['uid'] = $params->uid;
-                $this->_params['task'] = $params->task;
+                $this->_params['task_id'] = $params->task_id;
         }
 
         
@@ -28,5 +28,12 @@ class Timer
                 return $all_tasks;
         }
                 
-
+        public function getTimesForTask()
+        {       
+                //read all the todo items while passing the username and password to authenticate
+                $timer_items = TimeHandlers::getAllTimeItems($this->_params['uid'], $this->_params['task_id']);
+                
+                //return the list
+                return $timer_items;
+        }
 } 

@@ -105,7 +105,7 @@ function project_tt_get_times(){
   $params = pm_helpers_decrypt($enc_request, $app_key_exists);
   require_once($path . '/Controllers/timer.inc');
   $controller = new Timer($params);
-  $result['data'] = $controller->getTasks();
+  $result['data'] = $controller->getTimesForTask();
   $result['success'] = true;   
   return new JsonResponse($result);
 }
